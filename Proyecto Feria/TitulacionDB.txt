@@ -1,0 +1,158 @@
+CREATE DATABASE gestion_titulacion;
+USE gestion_titulacion;
+
+-- Tabla para Modalidades de Graduación
+CREATE TABLE modalidades_graduacion (
+    id_modalidad INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_modalidad VARCHAR(50) NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla para Registro de Estudiantes
+CREATE TABLE estudiantes (
+    ci VARCHAR(20) PRIMARY KEY,
+    ru VARCHAR(20) NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(50) NOT NULL,
+    correo_electronico VARCHAR(50),
+    estado VARCHAR(20) NOT NULL,
+    id_modalidad INT NOT NULL, 
+    FOREIGN KEY (id_modalidad) REFERENCES modalidades_graduacion(id_modalidad)
+);
+
+-- Tabla para Asignación de Docente Tutor
+CREATE TABLE tutores (
+    id_tutor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_tutor VARCHAR(50) NOT NULL,
+    especialidad VARCHAR(50)
+);
+
+CREATE TABLE asignacion_tutor (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    ci_estudiante VARCHAR(20),
+    id_tutor INT,
+    fecha_asignacion DATE,
+    FOREIGN KEY (ci_estudiante) REFERENCES estudiantes(ci),
+    FOREIGN KEY (id_tutor) REFERENCES tutores(id_tutor)
+);
+
+-- Tabla para Fases de Evaluación
+CREATE TABLE fases_evaluacion (
+    id_fase INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_fase VARCHAR(50) NOT NULL,
+    descripcion TEXT,
+    orden INT NOT NULL
+);
+
+-- Tabla para Seguimiento de Avance de Evaluación
+CREATE TABLE avance_evaluacion (
+    id_avance INT AUTO_INCREMENT PRIMARY KEY,
+    ci_estudiante VARCHAR(20),
+    id_fase INT,
+    fecha_aprobacion DATE,
+    estado_fase VARCHAR(20) DEFAULT 'Pendiente',
+    FOREIGN KEY (ci_estudiante) REFERENCES estudiantes(ci),
+    FOREIGN KEY (id_fase) REFERENCES fases_evaluacion(id_fase)
+);
+
+-- Tabla para Registro de Pagos por Titulación, relacionada con Fases de Evaluación
+CREATE TABLE pagos_titulacion (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    ci_estudiante VARCHAR(20),
+    id_fase INT,
+    monto DECIMAL(10, 2) NOT NULL,
+    fecha_pago DATE,
+    estado_pago VARCHAR(20),
+    FOREIGN KEY (ci_estudiante) REFERENCES estudiantes(ci),
+    FOREIGN KEY (id_fase) REFERENCES fases_evaluacion(id_fase)
+);
+
+-- Inserción de datos en la tabla modalidades_graduacion
+INSERT INTO modalidades_graduacion (nombre_modalidad, descripcion)
+VALUES
+('Tesis', 'Modalidad basada en la elaboración de una tesis de grado.'),
+('Examen de Grado', 'Modalidad que consiste en un examen final de conocimientos.'),
+('Trabajo Final', 'Modalidad que incluye un trabajo práctico o de investigación final.'),
+('Proyecto de Investigación', 'Modalidad que involucra el desarrollo de un proyecto de investigación en el área de estudio.'),
+('Prácticas Profesionales', 'Modalidad que requiere la realización de prácticas en empresas o instituciones.');
+
+-- Inserción de datos en la tabla estudiantes
+-- Nota: Debes asegurarte de que las modalidades de graduación estén ya insertadas para poder asignarlas correctamente a los estudiantes.
+INSERT INTO estudiantes (ci, ru, nombre, apellidos, correo_electronico, estado, id_modalidad)
+VALUES
+('12345678', 'RU001', 'Juan', 'Pérez', 'juan.perez@example.com', 'Activo', 1),
+('87654321', 'RU002', 'Ana', 'Gómez', 'ana.gomez@example.com', 'Activo', 2),
+('11223344', 'RU003', 'Carlos', 'López', 'carlos.lopez@example.com', 'Inactivo', 3),
+('22334455', 'RU004', 'María', 'Ramírez', 'maria.ramirez@example.com', 'Activo', 4),
+('33445566', 'RU005', 'Luis', 'Martínez', 'luis.martinez@example.com', 'Activo', 5),
+('44556677', 'RU006', 'Pedro', 'González', 'pedro.gonzalez@example.com', 'Activo', 1),
+('55667788', 'RU007', 'Laura', 'Fernández', 'laura.fernandez@example.com', 'Inactivo', 2),
+('66778899', 'RU008', 'Miguel', 'Rodríguez', 'miguel.rodriguez@example.com', 'Activo', 3),
+('77889900', 'RU009', 'Carmen', 'Vásquez', 'carmen.vasquez@example.com', 'Activo', 4),
+('88990011', 'RU010', 'Ricardo', 'Díaz', 'ricardo.diaz@example.com', 'Activo', 5);
+
+-- Inserción de datos en la tabla tutores
+INSERT INTO tutores (nombre_tutor, especialidad)
+VALUES
+('Dr. Luis Morales', 'Ingeniería de Software'),
+('Dra. Marta Sánchez', 'Derecho'),
+('Lic. Felipe Gómez', 'Administración de Empresas'),
+('Ing. Alejandro Ruiz', 'Ciencias de la Computación'),
+('Dra. Carolina Pérez', 'Economía'),
+('Lic. Francisco Torres', 'Marketing'),
+('Dr. Hugo Gómez', 'Ingeniería Industrial'),
+('Lic. Daniela Ortega', 'Psicología'),
+('Ing. Raúl Méndez', 'Telecomunicaciones'),
+('Dra. Beatriz Díaz', 'Arquitectura');
+
+-- Inserción de datos en la tabla asignacion_tutor
+-- Nota: Asegúrate de que los estudiantes y los tutores estén ya insertados.
+INSERT INTO asignacion_tutor (ci_estudiante, id_tutor, fecha_asignacion)
+VALUES
+('12345678', 1, '2024-11-13'),
+('87654321', 2, '2024-11-12'),
+('11223344', 3, '2024-11-11'),
+('22334455', 4, '2024-11-10'),
+('33445566', 5, '2024-11-09'),
+('44556677', 6, '2024-11-08'),
+('55667788', 7, '2024-11-07'),
+('66778899', 8, '2024-11-06'),
+('77889900', 9, '2024-11-05'),
+('88990011', 10, '2024-11-04');
+
+-- Inserción de datos en la tabla fases_evaluacion
+INSERT INTO fases_evaluacion (nombre_fase, descripcion, orden) VALUES
+('Revisión del Proyecto', 'Evaluación inicial de los objetivos y plan del proyecto.', 1),
+('Presentación del Proyecto', 'Presentación formal del proyecto a un comité evaluador.', 2),
+('Defensa Oral', 'Defensa oral del trabajo ante el tribunal evaluador.', 3),
+('Revisión del Documento Final', 'Corrección y verificación del documento final.', 4),
+('Entrega Final de Tesis', 'Entrega del documento final con todas las correcciones realizadas.', 5),
+('Aprobación por Comité', 'Evaluación final y aprobación por el comité académico.', 6);
+
+-- Inserción de datos en la tabla pagos_titulacion
+-- Nota: Debes asegurarte de que los estudiantes y las fases estén ya insertados.
+INSERT INTO pagos_titulacion (ci_estudiante, id_fase, monto, fecha_pago, estado_pago)
+VALUES
+('12345678', 1, 100.00, '2024-11-13', 'Pendiente'),
+('87654321', 2, 150.00, '2024-11-12', 'Pendiente'),
+('11223344', 3, 120.00, '2024-11-11', 'Pendiente'),
+('22334455', 4, 130.00, '2024-11-10', 'Pendiente'),
+('33445566', 5, 140.00, '2024-11-09', 'Pendiente'),
+('44556677', 6, 110.00, '2024-11-08', 'Pendiente'),
+('55667788', 1, 100.00, '2024-11-07', 'Pendiente'),
+('66778899', 2, 150.00, '2024-11-06', 'Pendiente'),
+('77889900', 3, 120.00, '2024-11-05', 'Pendiente'),
+('88990011', 4, 130.00, '2024-11-04', 'Pendiente');
+
+INSERT INTO avance_evaluacion (ci_estudiante, id_fase, fecha_aprobacion, estado_fase)
+VALUES
+('12345678', 1, '2024-11-13', 'Aprobada'),
+('87654321', 2, '2024-11-12', 'Aprobada'),
+('11223344', 3, '2024-11-11', 'Pendiente'),
+('22334455', 4, '2024-11-10', 'Pendiente'),
+('33445566', 5, '2024-11-09', 'Pendiente'),
+('44556677', 6, '2024-11-08', 'Aprobada'),
+('55667788', 1, '2024-11-07', 'Pendiente'),
+('66778899', 2, '2024-11-06', 'Pendiente'),
+('77889900', 3, '2024-11-05', 'Aprobada'),
+('88990011', 4, '2024-11-04', 'Pendiente');
